@@ -1,0 +1,53 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	concatenate
+	1	correct
+	1	correct_hyphens
+	4
+
+[Thu Sep 24 22:08:14 2020]
+rule concatenate:
+    input: ocr/Image-0147_left_final.txt, ocr/Image-0147_right_final.txt, ocr/Image-0148_left_final.txt, ocr/Image-0148_right_final.txt
+    output: result_ocr.txt
+    jobid: 15
+
+[Thu Sep 24 22:08:14 2020]
+Finished job 15.
+1 of 4 steps (25%) done
+
+[Thu Sep 24 22:08:14 2020]
+rule correct:
+    input: result_ocr.txt
+    output: example.txt
+    jobid: 10
+
+Removing temporary output file result_ocr.txt.
+[Thu Sep 24 22:08:14 2020]
+Finished job 10.
+2 of 4 steps (50%) done
+
+[Thu Sep 24 22:08:14 2020]
+rule correct_hyphens:
+    input: example.txt
+    output: example_final.txt
+    jobid: 5
+
+Removing temporary output file example.txt.
+[Thu Sep 24 22:08:14 2020]
+Finished job 5.
+3 of 4 steps (75%) done
+
+[Thu Sep 24 22:08:14 2020]
+localrule all:
+    input: ocr/Image-0147_left_final.txt, ocr/Image-0147_right_final.txt, ocr/Image-0148_left_final.txt, ocr/Image-0148_right_final.txt, example_final.txt
+    jobid: 0
+
+[Thu Sep 24 22:08:14 2020]
+Finished job 0.
+4 of 4 steps (100%) done
+Complete log: /home/yoann/scan2book/example/.snakemake/log/2020-09-24T220814.094022.snakemake.log

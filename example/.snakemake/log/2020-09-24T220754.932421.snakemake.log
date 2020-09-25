@@ -1,0 +1,3 @@
+NameError in line 140 of /home/yoann/scan2book/tools/Snakefile:
+name 'tmp' is not defined
+  File "/home/yoann/scan2book/tools/Snakefile", line 140, in <module>

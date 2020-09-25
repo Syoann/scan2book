@@ -1,0 +1,3 @@
+NameError in line 30 of /home/yoann/software/scan2book/tools/Snakefile:
+name 'TITLE' is not defined
+  File "/home/yoann/software/scan2book/tools/Snakefile", line 30, in <module>

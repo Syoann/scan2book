@@ -1,0 +1,372 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 2
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	autocrop
+	4	blur
+	1	concatenate
+	1	correct
+	1	correct_hyphens
+	4	deskew
+	2	extract_pages
+	4	format
+	4	morphology
+	4	ocr
+	2	resize
+	2	rotate
+	32
+
+[Thu Sep 24 22:02:39 2020]
+rule resize:
+    input: scan/Image-0147.png
+    output: ocr/Image-0147_resized.mpc
+    jobid: 30
+    wildcards: name=Image-0147
+
+
+[Thu Sep 24 22:02:39 2020]
+rule resize:
+    input: scan/Image-0148.png
+    output: ocr/Image-0148_resized.mpc
+    jobid: 31
+    wildcards: name=Image-0148
+
+[Thu Sep 24 22:02:41 2020]
+Finished job 30.
+1 of 32 steps (3%) done
+[Thu Sep 24 22:02:41 2020]
+Finished job 31.
+2 of 32 steps (6%) done
+
+[Thu Sep 24 22:02:41 2020]
+rule autocrop:
+    input: ocr/Image-0147_resized.mpc
+    output: ocr/Image-0147_cropped.mpc
+    jobid: 28
+    wildcards: name=Image-0147
+
+
+[Thu Sep 24 22:02:41 2020]
+rule autocrop:
+    input: ocr/Image-0148_resized.mpc
+    output: ocr/Image-0148_cropped.mpc
+    jobid: 29
+    wildcards: name=Image-0148
+
+[Thu Sep 24 22:02:45 2020]
+Finished job 28.
+3 of 32 steps (9%) done
+[Thu Sep 24 22:02:45 2020]
+Finished job 29.
+4 of 32 steps (12%) done
+
+[Thu Sep 24 22:02:45 2020]
+rule rotate:
+    input: ocr/Image-0148_cropped.mpc
+    output: ocr/Image-0148_rotated.png
+    jobid: 27
+    wildcards: name=Image-0148
+
+
+[Thu Sep 24 22:02:45 2020]
+rule rotate:
+    input: ocr/Image-0147_cropped.mpc
+    output: ocr/Image-0147_rotated.png
+    jobid: 26
+    wildcards: name=Image-0147
+
+[Thu Sep 24 22:02:46 2020]
+Finished job 27.
+5 of 32 steps (16%) done
+
+[Thu Sep 24 22:02:46 2020]
+rule extract_pages:
+    input: ocr/Image-0148_rotated.png
+    output: ocr/Image-0148_left.tif, ocr/Image-0148_right.tif
+    jobid: 25
+    wildcards: name=Image-0148
+
+[Thu Sep 24 22:02:46 2020]
+Finished job 26.
+6 of 32 steps (19%) done
+
+[Thu Sep 24 22:02:46 2020]
+rule extract_pages:
+    input: ocr/Image-0147_rotated.png
+    output: ocr/Image-0147_left.tif, ocr/Image-0147_right.tif
+    jobid: 24
+    wildcards: name=Image-0147
+
+[Thu Sep 24 22:02:53 2020]
+Finished job 24.
+7 of 32 steps (22%) done
+
+[Thu Sep 24 22:02:53 2020]
+rule deskew:
+    input: ocr/Image-0147_left.tif
+    output: ocr/Image-0147_left_deskewed.tif
+    jobid: 20
+    wildcards: name=Image-0147, page=left
+
+[Thu Sep 24 22:02:53 2020]
+Finished job 25.
+8 of 32 steps (25%) done
+
+[Thu Sep 24 22:02:53 2020]
+rule deskew:
+    input: ocr/Image-0148_right.tif
+    output: ocr/Image-0148_right_deskewed.tif
+    jobid: 23
+    wildcards: name=Image-0148, page=right
+
+[Thu Sep 24 22:02:53 2020]
+Finished job 20.
+9 of 32 steps (28%) done
+[Thu Sep 24 22:02:53 2020]
+Finished job 23.
+10 of 32 steps (31%) done
+
+[Thu Sep 24 22:02:53 2020]
+rule deskew:
+    input: ocr/Image-0148_left.tif
+    output: ocr/Image-0148_left_deskewed.tif
+    jobid: 22
+    wildcards: name=Image-0148, page=left
+
+
+[Thu Sep 24 22:02:53 2020]
+rule deskew:
+    input: ocr/Image-0147_right.tif
+    output: ocr/Image-0147_right_deskewed.tif
+    jobid: 21
+    wildcards: name=Image-0147, page=right
+
+[Thu Sep 24 22:02:54 2020]
+Finished job 22.
+11 of 32 steps (34%) done
+[Thu Sep 24 22:02:54 2020]
+Finished job 21.
+12 of 32 steps (38%) done
+
+[Thu Sep 24 22:02:54 2020]
+rule morphology:
+    input: ocr/Image-0148_right_deskewed.tif
+    output: ocr/Image-0148_right_morpho.mpc
+    jobid: 19
+    wildcards: name=Image-0148, page=right
+
+
+[Thu Sep 24 22:02:54 2020]
+rule morphology:
+    input: ocr/Image-0147_right_deskewed.tif
+    output: ocr/Image-0147_right_morpho.mpc
+    jobid: 17
+    wildcards: name=Image-0147, page=right
+
+[Thu Sep 24 22:02:54 2020]
+Finished job 19.
+13 of 32 steps (41%) done
+[Thu Sep 24 22:02:54 2020]
+Finished job 17.
+14 of 32 steps (44%) done
+
+[Thu Sep 24 22:02:54 2020]
+rule blur:
+    input: ocr/Image-0147_right_morpho.mpc
+    output: ocr/Image-0147_right_clean.tif
+    jobid: 12
+    wildcards: name=Image-0147, page=right
+
+
+[Thu Sep 24 22:02:54 2020]
+rule blur:
+    input: ocr/Image-0148_right_morpho.mpc
+    output: ocr/Image-0148_right_clean.tif
+    jobid: 14
+    wildcards: name=Image-0148, page=right
+
+[Thu Sep 24 22:02:55 2020]
+Finished job 14.
+15 of 32 steps (47%) done
+[Thu Sep 24 22:02:55 2020]
+Finished job 12.
+16 of 32 steps (50%) done
+
+[Thu Sep 24 22:02:55 2020]
+rule morphology:
+    input: ocr/Image-0148_left_deskewed.tif
+    output: ocr/Image-0148_left_morpho.mpc
+    jobid: 18
+    wildcards: name=Image-0148, page=left
+
+
+[Thu Sep 24 22:02:55 2020]
+rule morphology:
+    input: ocr/Image-0147_left_deskewed.tif
+    output: ocr/Image-0147_left_morpho.mpc
+    jobid: 16
+    wildcards: name=Image-0147, page=left
+
+[Thu Sep 24 22:02:56 2020]
+Finished job 18.
+17 of 32 steps (53%) done
+
+[Thu Sep 24 22:02:56 2020]
+rule blur:
+    input: ocr/Image-0148_left_morpho.mpc
+    output: ocr/Image-0148_left_clean.tif
+    jobid: 13
+    wildcards: name=Image-0148, page=left
+
+[Thu Sep 24 22:02:56 2020]
+Finished job 16.
+18 of 32 steps (56%) done
+
+[Thu Sep 24 22:02:56 2020]
+rule blur:
+    input: ocr/Image-0147_left_morpho.mpc
+    output: ocr/Image-0147_left_clean.tif
+    jobid: 11
+    wildcards: name=Image-0147, page=left
+
+[Thu Sep 24 22:02:57 2020]
+Finished job 13.
+19 of 32 steps (59%) done
+[Thu Sep 24 22:02:57 2020]
+Finished job 11.
+20 of 32 steps (62%) done
+
+[Thu Sep 24 22:02:57 2020]
+rule ocr:
+    input: ocr/Image-0148_right_clean.tif
+    output: ocr/Image-0148_right.txt
+    jobid: 9
+    wildcards: name=Image-0148, page=right
+    threads: 2
+
+[Thu Sep 24 22:02:58 2020]
+Finished job 9.
+21 of 32 steps (66%) done
+
+[Thu Sep 24 22:02:59 2020]
+rule ocr:
+    input: ocr/Image-0147_right_clean.tif
+    output: ocr/Image-0147_right.txt
+    jobid: 7
+    wildcards: name=Image-0147, page=right
+    threads: 2
+
+[Thu Sep 24 22:03:00 2020]
+Finished job 7.
+22 of 32 steps (69%) done
+
+[Thu Sep 24 22:03:01 2020]
+rule format:
+    input: ocr/Image-0147_right.txt
+    output: ocr/Image-0147_right_final.txt
+    jobid: 2
+    wildcards: name=Image-0147, page=right
+
+
+[Thu Sep 24 22:03:01 2020]
+rule format:
+    input: ocr/Image-0148_right.txt
+    output: ocr/Image-0148_right_final.txt
+    jobid: 4
+    wildcards: name=Image-0148, page=right
+
+[Thu Sep 24 22:03:01 2020]
+Finished job 2.
+23 of 32 steps (72%) done
+[Thu Sep 24 22:03:01 2020]
+Finished job 4.
+24 of 32 steps (75%) done
+
+[Thu Sep 24 22:03:01 2020]
+rule ocr:
+    input: ocr/Image-0148_left_clean.tif
+    output: ocr/Image-0148_left.txt
+    jobid: 8
+    wildcards: name=Image-0148, page=left
+    threads: 2
+
+[Thu Sep 24 22:03:03 2020]
+Finished job 8.
+25 of 32 steps (78%) done
+
+[Thu Sep 24 22:03:03 2020]
+rule ocr:
+    input: ocr/Image-0147_left_clean.tif
+    output: ocr/Image-0147_left.txt
+    jobid: 6
+    wildcards: name=Image-0147, page=left
+    threads: 2
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 6.
+26 of 32 steps (81%) done
+
+[Thu Sep 24 22:03:05 2020]
+rule format:
+    input: ocr/Image-0147_left.txt
+    output: ocr/Image-0147_left_final.txt
+    jobid: 1
+    wildcards: name=Image-0147, page=left
+
+
+[Thu Sep 24 22:03:05 2020]
+rule format:
+    input: ocr/Image-0148_left.txt
+    output: ocr/Image-0148_left_final.txt
+    jobid: 3
+    wildcards: name=Image-0148, page=left
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 1.
+27 of 32 steps (84%) done
+[Thu Sep 24 22:03:05 2020]
+Finished job 3.
+28 of 32 steps (88%) done
+
+[Thu Sep 24 22:03:05 2020]
+rule concatenate:
+    input: ocr/Image-0147_left_final.txt, ocr/Image-0147_right_final.txt, ocr/Image-0148_left_final.txt, ocr/Image-0148_right_final.txt
+    output: result_ocr.txt
+    jobid: 15
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 15.
+29 of 32 steps (91%) done
+
+[Thu Sep 24 22:03:05 2020]
+rule correct:
+    input: result_ocr.txt
+    output: example.txt
+    jobid: 10
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 10.
+30 of 32 steps (94%) done
+
+[Thu Sep 24 22:03:05 2020]
+rule correct_hyphens:
+    input: example.txt
+    output: example_final.txt
+    jobid: 5
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 5.
+31 of 32 steps (97%) done
+
+[Thu Sep 24 22:03:05 2020]
+localrule all:
+    input: ocr/Image-0147_left_final.txt, ocr/Image-0147_right_final.txt, ocr/Image-0148_left_final.txt, ocr/Image-0148_right_final.txt, example_final.txt
+    jobid: 0
+
+[Thu Sep 24 22:03:05 2020]
+Finished job 0.
+32 of 32 steps (100%) done
+Complete log: /home/yoann/scan2book/example/.snakemake/log/2020-09-24T220238.522532.snakemake.log

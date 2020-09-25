@@ -1,0 +1,166 @@
+import glob
+import os
+import sys
+
+
+OCR_DIR = "ocr/"
+
+configfile: srcdir("config.yaml")
+
+config["directory"] = config["directory"].rstrip("/")
+
+SCANS, = glob_wildcards(config["directory"] + "{name}.png")
+
+software = {
+    "deskew": srcdir("deskew"),
+    "tessdata": srcdir("tessdata"),
+    "deskew": srcdir("deskew"),
+    "path_extract_script": srcdir("extract_pages.py"),
+    "path_correct_hyphens": srcdir("correct_hyphens.py"),
+    "path_replace": srcdir("replace.sh"),
+    "dictionary": srcdir("dictionnaire_fr.txt"),
+    "dictionary_hyphen": srcdir("dict_hyphens.txt")
+}
+
+rule all:
+    input:
+        expand(OCR_DIR + "{name}_{page}_final.txt", name=[os.path.splitext(os.path.basename(f))[0] for f in SCANS], page=["left", "right"]),
+        config["title"] + "_final.txt"
+
+
+
+rule resize:
+    input:
+        config["directory"] + "/" + "{name}.png"
+    output:
+        OCR_DIR + "{name}_resized." + config["tmp_extension"]
+    shell:
+        "convert {input} -scale 70% {output}"
+
+
+rule autocrop:
+    input:
+        OCR_DIR + "{name}_resized." + config["tmp_extension"]
+    output:
+        OCR_DIR + "{name}_cropped." + config["tmp_extension"]
+    shell:
+        """
+        convert "{input}" -crop $(convert "{input}" -morphology Erode Disk:4.3 -format "%@" info:) +repage "{output}"
+        """
+
+
+rule rotate:
+    input:
+        OCR_DIR + "{name}_cropped." + config["tmp_extension"]
+    output:
+        OCR_DIR + "{name}_rotated." + "png"
+    shell:
+        "convert -rotate 90 {input} {output}"
+
+rule extract_pages:
+    input:
+        OCR_DIR + "{name}_rotated." + "png"
+    output:
+        left=OCR_DIR + "{name}_left.tif",
+        right=OCR_DIR + "{name}_right.tif"
+    shell:
+        "unpaper -l double -op 2 --pre-border 0,0,0,20 {input} {output.left} {output.right}"
+
+
+rule deskew:
+    input:
+        OCR_DIR + "{name}_{page}.tif"
+    output:
+        OCR_DIR + "{name}_{page,left|right}_deskewed.tif"
+    shell:
+        """
+        {software[deskew]} {input} 0 0 0 {output}
+        """
+
+
+rule morphology:
+    input:
+        OCR_DIR + "{name}_{page}_deskewed.tif"
+    output:
+        OCR_DIR + "{name}_{page,left|right}_morpho." + config["tmp_extension"]
+    shell:
+        """
+        convert "{input}" -morphology Dilate:1 Square -morphology Erode:1 Square:1 {output}
+        """
+
+rule blur:
+    input:
+        OCR_DIR + "{name}_{page}_morpho." + config["tmp_extension"]
+    output:
+        OCR_DIR + "{name}_{page,left|right}_clean.tif"
+    shell:
+        """
+        convert -blur 1x65535 -level 1x100% -threshold 60% {input} {output}
+        """
+
+rule ocr:
+    input:
+        OCR_DIR + "{name}_{page}_clean.tif"
+    output:
+        OCR_DIR + "{name}_{page,left|right}.txt"
+    params:
+        prefix=OCR_DIR + "{name}_{page}"
+    threads:
+        4
+    shell:
+        """
+        tesseract -l "{config[lang]}" --dpi "{config[dpi]}" --tessdata-dir "{software[tessdata]}" {input} {params.prefix}
+        """
+
+
+rule format:
+    input:
+        OCR_DIR + "{name}_{page}.txt"
+    output:
+        OCR_DIR + "{name}_{page,left|right}_final.txt"
+    shell:
+        """
+        # Remove ^L characters
+        sed 's/\\f//g' {input} > {output}
+
+        # Remove page number
+        sed -i ':a;N;$!ba; s/\\n\+[0-9]\+[\\s\\n]*//g' {output}
+
+        # Remove end of lines due to page width
+        sed -i ':a;N;$!ba; s/\\(.\\)\\n/\\1 /g; s/- /-\\n/g' {output}
+        """
+
+
+rule concatenate:
+    input:
+        sorted(expand(OCR_DIR + "{name}_{page}_final.txt", name=[os.path.splitext(os.path.basename(f))[0] for f in SCANS], page=["left", "right"]))
+    output:
+        temp("result_ocr.txt")
+    shell:
+        "cat {input} > {output}"
+
+
+rule correct:
+    input:
+        "result_ocr.txt"
+    output:
+        temp(config["title"] + ".txt")
+    shell:
+        "{software[path_replace]} {input} > {output}"
+
+
+rule correct_hyphens:
+    input:
+        config["title"] + ".txt"
+    output:
+        config["title"] + "_final.txt"
+    shell:
+        """
+        {software[path_correct_hyphens]} -i {input} -d {software[dictionary_hyphen]} -o {output}
+
+        # Remove line breaks within sentences due to page breaks
+        sed -i ':a;N;$!ba;s/\\([a-zé,]\\)\\n\\([a-zéê]\\)/\\1 \\2/g' {output}
+
+        # Try to detect line breaks just before Proper Nouns
+        sed -i ':a;N;$!ba;s/\\([A-Za-zéèêëîôûâ][a-zé,]\\)\\n\\([A-Za-zéê]\\)/\\1 \\2/g' {output}
+        """
